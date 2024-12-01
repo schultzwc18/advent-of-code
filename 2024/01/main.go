@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"math"
 	"os"
@@ -49,6 +48,45 @@ func getLists(lines []string) ([]int, []int) {
 	return listOne, listTwo
 }
 
+func getTotalDistance(listOne []int, listTwo []int) int {
+	totalDistance := 0
+
+	for index, value := range listOne {
+		totalDistance += int(math.Abs(float64(listTwo[index] - value)))
+	}
+
+	return totalDistance
+}
+
+func getTotalOccurancesScore(num int, list []int) int {
+	occurances := 0
+
+	for _, value := range list {
+		if value == num {
+			occurances++
+		}
+	}
+
+	return num * occurances
+}
+
+func getSimilarityScore(listOne []int, listTwo []int) int {
+	similarityScore := 0
+	similarityOccurances := make(map[int]int)
+
+	for _, value := range listOne {
+		val, ok := similarityOccurances[value]
+		if ok {
+			similarityScore += val
+		} else {
+			similarityOccurances[value] = getTotalOccurancesScore(value, listTwo)
+			similarityScore += similarityOccurances[value]
+		}
+	}
+
+	return similarityScore
+}
+
 func main() {
 	lines, err := readFile("input/input.txt")
 	if err != nil {
@@ -56,11 +94,9 @@ func main() {
 	}
 
 	listOne, listTwo := getLists(lines)
-	totalDistance := 0
+	totalDistance := getTotalDistance(listOne, listTwo)
+	similarityScore := getSimilarityScore(listOne, listTwo)
 
-	for index, value := range listOne {
-		totalDistance += int(math.Abs(float64(listTwo[index] - value)))
-	}
-
-	fmt.Println(totalDistance)
+	log.Printf("Total distance: %v", totalDistance)
+	log.Printf("Similarity score: %v", similarityScore)
 }
