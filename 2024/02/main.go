@@ -16,7 +16,20 @@ func readFile(filename string) ([]string, error) {
 	return strings.Split(string(content), "\n"), nil
 }
 
-func checkReportSafety(report []string) bool {
+func concatArray(indexToSkip int, reportArray []string) []string {
+	var revisedArray []string
+
+	for index, _ := range reportArray {
+		if indexToSkip != index {
+			revisedArray = append(revisedArray, reportArray[index])
+		}
+
+	}
+
+	return revisedArray
+}
+
+func checkReportSafety(report []string, includeToleration bool) bool {
 	isAscending := false
 	isReportSafe := true
 
@@ -57,23 +70,41 @@ func checkReportSafety(report []string) bool {
 		}
 	}
 
+	if includeToleration && !isReportSafe {
+		for index, _ := range report {
+			tolerationReport := concatArray(index, report)
+			tolerationReportSafety := checkReportSafety(tolerationReport, false)
+			tolerationReport = nil
+
+			if tolerationReportSafety {
+				isReportSafe = true
+				return isReportSafe
+			}
+		}
+	}
+
 	return isReportSafe
 }
 
-func getSafeReports(reports []string) int {
+func getSafeReports(reports []string) (int, int) {
 	safeReportCount := 0
+	safeTolerationReportCount := 0
 
 	for _, report := range reports {
-
 		reportSplit := strings.Fields(report)
-		reportSafety := checkReportSafety(reportSplit)
+		reportSafety := checkReportSafety(reportSplit, false)
+		reportTolerationSafety := checkReportSafety(reportSplit, true)
 
 		if reportSafety {
 			safeReportCount++
 		}
+
+		if reportTolerationSafety {
+			safeTolerationReportCount++
+		}
 	}
 
-	return safeReportCount
+	return safeReportCount, safeTolerationReportCount
 }
 
 func main() {
@@ -82,7 +113,8 @@ func main() {
 		log.Fatalf("Error reading file: %v", err)
 	}
 
-	safeReports := getSafeReports(lines)
+	safeReports, safeTolerationReports := getSafeReports(lines)
 
 	log.Printf("Safe Reports: %v", safeReports)
+	log.Printf("Safe Toleration Reports: %v", safeTolerationReports)
 }
