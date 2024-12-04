@@ -18,15 +18,15 @@ func TestMemory(t *testing.T) {
 	}
 }
 
-// func TestSafeToleratedReports(t *testing.T) {
-// 	want := 476
-// 	lines, err := readFile("input/input.txt")
-// 	if err != nil {
-// 		log.Fatalf("Error reading file: %v", err)
-// 	}
-// 	_, safeReports := getSafeReports(lines)
+func TestSafeToleratedReports(t *testing.T) {
+	want := 118173507
+	lines, err := readFile("input/input.txt")
+	if err != nil {
+		log.Fatalf("Error reading file: %v", err)
+	}
+	value := scanEnabledMemory(lines)
 
-// 	if safeReports != want {
-// 		t.Errorf("Got: %v; Want: %v", safeReports, want)
-// 	}
-// }
+	if value != want {
+		t.Errorf("Got: %v; Want: %v", value, want)
+	}
+}
